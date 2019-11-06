@@ -35,8 +35,8 @@
     <ClInclude Include="AzureConnection-ARM64.h" Condition="'$(Platform)'=='ARM64'" />
     <ClInclude Include="AzureConnectionStrings.h" Condition="'$(Platform)'!='ARM64'" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="ConhostConnection.h">
-      <DependentUpon>ConhostConnection.idl</DependentUpon>
+    <ClInclude Include="ConptyConnection.h">
+      <DependentUpon>ConptyConnection.idl</DependentUpon>
     </ClInclude>
     <ClInclude Include="EchoConnection.h">
       <DependentUpon>EchoConnection.idl</DependentUpon>
@@ -49,17 +49,17 @@
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="ConhostConnection.cpp">
-      <DependentUpon>ConhostConnection.idl</DependentUpon>
-    </ClCompile>
     <ClCompile Include="EchoConnection.cpp">
       <DependentUpon>EchoConnection.idl</DependentUpon>
+    </ClCompile>
+    <ClCompile Include="ConptyConnection.cpp">
+      <DependentUpon>ConptyConnection.idl</DependentUpon>
     </ClCompile>
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="ITerminalConnection.idl" />
-    <Midl Include="ConhostConnection.idl" />
+    <Midl Include="ConptyConnection.idl" />
     <Midl Include="EchoConnection.idl" />
     <Midl Include="AzureConnection.idl" />
   </ItemGroup>

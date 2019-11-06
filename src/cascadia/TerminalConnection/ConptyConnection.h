@@ -4,16 +4,17 @@
 #pragma once
 
 #include "ConptyConnection.g.h"
-// Note that the ConptyConnection is no longer a part of this project
-// Until there's platform-level support for full-trust universal applications,
-// all ProcThreadAttribute things will be unusable. Unfortunately, this means
-// we'll be unable to use the conpty API directly.
+
+namespace wil
+{
+    using unique_pseudoconsole_handle = wil::unique_any<HPCON, decltype(&::ClosePseudoConsole), ::ClosePseudoConsole>;
+}
+
 namespace winrt::Microsoft::Terminal::TerminalConnection::implementation
 {
     struct ConptyConnection : ConptyConnectionT<ConptyConnection>
     {
-        ConptyConnection() = delete;
-        ConptyConnection(hstring const& commandline, uint32_t initialRows, uint32_t initialCols);
+        ConptyConnection(const hstring& cmdline, const hstring& startingDirectory, const hstring& startingTitle, const uint32_t rows, const uint32_t cols, const guid& guid);
 
         winrt::event_token TerminalOutput(TerminalConnection::TerminalOutputEventArgs const& handler);
         void TerminalOutput(winrt::event_token const& token) noexcept;
@@ -24,23 +25,32 @@ namespace winrt::Microsoft::Terminal::TerminalConnection::implementation
         void Resize(uint32_t rows, uint32_t columns);
         void Close();
 
+        winrt::guid Guid() const noexcept;
+
     private:
-        winrt::event<TerminalConnection::TerminalOutputEventArgs> _outputHandlers;
-
-        uint32_t _initialRows;
-        uint32_t _initialCols;
-        hstring _commandline;
-
-        bool _connected;
-        HANDLE _inPipe; // The pipe for writing input to
-        HANDLE _outPipe; // The pipe for reading output from
-        HPCON _hPC;
-        DWORD _outputThreadId;
-        HANDLE _hOutputThread;
-        PROCESS_INFORMATION _piClient;
-
-        static DWORD WINAPI StaticOutputThreadProc(LPVOID lpParameter);
         void _CreatePseudoConsole();
+
+        winrt::event<TerminalConnection::TerminalOutputEventArgs> _outputHandlers;
+        winrt::event<TerminalConnection::TerminalDisconnectedEventArgs> _disconnectHandlers;
+
+        uint32_t _initialRows{};
+        uint32_t _initialCols{};
+        hstring _commandline;
+        hstring _startingDirectory;
+        hstring _startingTitle;
+        guid _guid{}; // A unique session identifier for connected client
+
+        bool _connected{};
+        std::atomic<bool> _closing{ false };
+        bool _recievedFirstByte{ false };
+        std::chrono::high_resolution_clock::time_point _startTime{};
+
+        wil::unique_hfile _inPipe; // The pipe for writing input to
+        wil::unique_hfile _outPipe; // The pipe for reading output from
+        wil::unique_handle _hOutputThread;
+        wil::unique_process_information _piClient;
+        wil::unique_pseudoconsole_handle _hPC;
+
         DWORD _OutputThread();
     };
 }
