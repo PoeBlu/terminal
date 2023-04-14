@@ -19,12 +19,12 @@ if os.name == 'nt':
     setcp_result = ctypes.windll.kernel32.SetConsoleOutputCP(65001)
     if not setcp_result:
         gle = ctypes.windll.kernel32.GetLastError()
-        print('SetConsoleOutputCP failed with error {}'.format(gle))
+        print(f'SetConsoleOutputCP failed with error {gle}')
         exit(0)
     setcp_result = ctypes.windll.kernel32.SetConsoleCP(65001)
     if not setcp_result:
         gle = ctypes.windll.kernel32.GetLastError()
-        print('SetConsoleCP failed with error {}'.format(gle))
+        print(f'SetConsoleCP failed with error {gle}')
         exit(0)
     import codecs
     codecs.register(lambda name: codecs.lookup('utf-8') if name == 'cp65001' else None)
@@ -35,32 +35,32 @@ def write(s):
     sys.stdout.write(s)
 
 def esc(seq):
-    write('\x1b{}'.format(seq))
+    write(f'\x1b{seq}')
 
 def csi(seq):
-    sys.stdout.write('\x1b[{}'.format(seq))
+    sys.stdout.write(f'\x1b[{seq}')
 
 def osc(seq):
-    sys.stdout.write('\x1b]{}\x07'.format(seq))
+    sys.stdout.write(f'\x1b]{seq}\x07')
 
 def cup(r=0, c=0):
-    csi('H') if (r==0 and c==0) else csi('{};{}H'.format(r, c))
+    csi('H') if (r==0 and c==0) else csi(f'{r};{c}H')
 
 def cupxy(x=0, y=0):
     cup(y+1, x+1)
 
 def margins(top=0, bottom=0):
-    csi('{};{}r'.format(top, bottom))
+    csi(f'{top};{bottom}r')
 
 def clear_all():
     cupxy(0,0)
     csi('2J')
 
 def sgr(code=0):
-    csi('{}m'.format(code))
+    csi(f'{code}m')
 
 def sgr_n(seq=[]):
-    csi('{}m'.format(';'.join(str(code) for code in seq)))
+    csi(f"{';'.join(str(code) for code in seq)}m")
 
 def tbc():
     """
@@ -77,7 +77,7 @@ def cbt():
 
 def hts(column=-1):
     if column > 0:
-        csi(';{}H'.format(column))
+        csi(f';{column}H')
     esc('H')
 
 def alt_buffer():
